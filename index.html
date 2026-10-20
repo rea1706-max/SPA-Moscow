@@ -60,7 +60,7 @@
     padding-right: max(22px, env(safe-area-inset-right, 0px));
   }
 
-  /* ---------- появление: одно движение, без разбиения на слова ---------- */
+  /* ---------- появление: одно плавное движение ---------- */
   .js .rv {
     opacity: 0;
     transform: translate3d(0, 34px, 0);
@@ -72,7 +72,6 @@
   .js .rv.d2 { transition-delay: .24s; }
   .js .rv.d3 { transition-delay: .36s; }
 
-  /* заголовок открывается маской снизу */
   .js .clip {
     clip-path: inset(0 -6% 100% -6%);
     transition: clip-path 1.9s var(--ease);
@@ -122,16 +121,9 @@
   }
   .top-cta:hover { background: var(--rose-hover); transform: translateY(-1px); }
 
-  /* ---------- переход: видео уходит в глубину, программы проступают сквозь него ---------- */
-  .stage {
-    --p: 0;
-    --q: 0;
-    position: relative;
-    height: 180svh;
-  }
+  /* ---------- первый экран ---------- */
   .hero {
-    position: sticky;
-    top: 0;
+    position: relative;
     height: 100vh;
     height: 100svh;
     overflow: hidden;
@@ -140,14 +132,13 @@
   }
   .hero video {
     position: absolute;
-    inset: 0;
+    left: 0;
+    top: -8%;
     width: 100%;
-    height: 100%;
+    height: 116%;
     object-fit: cover;
     object-position: 50% 40%;
-    transform: scale(calc(1 + var(--p) * .06));
-    filter: brightness(calc(1 - var(--p) * .45));
-    will-change: transform, filter;
+    will-change: transform;
   }
   .hero .veil {
     position: absolute;
@@ -168,10 +159,6 @@
     padding-bottom: 56px;
     padding-left: max(22px, env(safe-area-inset-left, 0px));
     padding-right: max(22px, env(safe-area-inset-right, 0px));
-    opacity: calc(1 - var(--p) * 1.5);
-    transform: translate3d(0, calc(var(--p) * -60px), 0);
-    filter: blur(calc(var(--p) * 10px));
-    will-change: transform, opacity;
   }
   .hero h1 {
     font-size: clamp(3rem, 10vw, 8rem);
@@ -201,41 +188,25 @@
   }
   .hero .cta:hover { background: var(--rose-hover); }
 
-  /* программы проступают поверх видео */
-  .intro {
-    position: absolute;
-    inset: 0;
-    background: var(--paper);
-    opacity: var(--q);
-    display: flex;
-    align-items: center;
-    pointer-events: none;
-  }
-  .intro.is-active { pointer-events: auto; }
-  .intro-inner {
-    transform: translate3d(0, calc((1 - var(--q)) * 90px), 0);
-    filter: blur(calc((1 - var(--q)) * 10px));
-  }
+  /* ---------- программы: заголовок над карточками ---------- */
+  .menu { padding: 120px 0 150px; background: var(--paper); }
   .menu-head {
     display: grid;
     gap: 22px;
+    margin-bottom: 72px;
   }
   @media (min-width: 900px) {
     .menu-head { grid-template-columns: 1fr 1fr; align-items: end; gap: 48px; }
-  }
-  .menu-head h2 { font-size: var(--h2); color: var(--ink); margin-top: 16px; }
-  .menu-head .intro-text { max-width: 40ch; margin: 0; color: var(--muted); font-size: 1.04rem; }
-  @media (min-width: 900px) {
     .menu-head .intro-text { justify-self: end; }
   }
+  .menu-head .label { color: var(--jade-soft); }
+  .menu-head h2 { font-size: var(--h2); color: var(--ink); margin-top: 16px; }
+  .menu-head .intro-text { max-width: 40ch; margin: 0; color: var(--muted); font-size: 1.04rem; }
 
-  /* ---------- программы ---------- */
-  .menu { padding: 120px 0 150px; background: var(--paper); position: relative; }
   .cards {
     display: grid;
     gap: 26px;
     grid-template-columns: 1fr;
-    margin-top: 72px;
   }
   @media (min-width: 900px) {
     .cards { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; }
@@ -586,18 +557,14 @@
     .hero h1 { font-size: clamp(3.1rem, 17vw, 5rem); }
     .hero .tagline { font-size: 1.1rem; }
     .menu { padding: 96px 0 110px; }
-    .cards { margin-top: 52px; }
+    .menu-head { margin-bottom: 52px; }
     .booking { padding: 100px 0 110px; }
     .menu-head h2 { margin-top: 12px; }
   }
 
-  /* ---------- меньше движения: без закрепления и растворения ---------- */
   @media (prefers-reduced-motion: reduce) {
     html { scroll-behavior: auto; }
     *, *::before, *::after { transition: none !important; animation: none !important; }
-    .stage { height: auto; --p: 1; --q: 1; }
-    .hero { position: relative; height: auto; min-height: 100svh; }
-    .intro { position: relative; inset: auto; min-height: 80svh; padding: 120px 0; }
     .js .rv { opacity: 1; transform: none; filter: none; }
     .js .clip { clip-path: none; }
   }
@@ -614,35 +581,28 @@
 </header>
 
 <main>
-  <div class="stage" id="stage">
-    <section class="hero" id="hero" aria-label="The Rituals">
-      <video src="video/hero.mp4" autoplay muted loop playsinline preload="auto" aria-hidden="true" id="hero-video"></video>
-      <div class="veil"></div>
-
-      <div class="hero-content">
-        <div>
-          <h1 class="display clip" id="hero-title">The Rituals</h1>
-          <p class="tagline rv d2">SPA-центр в центре Москвы: массаж, уход и тишина, в которую можно зайти прямо после работы.</p>
-        </div>
-        <a class="cta rv d3" href="#menu" id="hero-cta">Смотреть программы</a>
+  <section class="hero" id="hero" aria-label="The Rituals">
+    <video src="video/hero.mp4" autoplay muted loop playsinline preload="auto" aria-hidden="true" id="hero-video"></video>
+    <div class="veil"></div>
+    <div class="hero-content">
+      <div>
+        <h1 class="display clip" id="hero-title">The Rituals</h1>
+        <p class="tagline rv d2">SPA-центр в центре Москвы: массаж, уход и тишина, в которую можно зайти прямо после работы.</p>
       </div>
+      <a class="cta rv d3" href="#menu" id="hero-cta">Смотреть программы</a>
+    </div>
+  </section>
 
-      <div class="intro" id="intro" aria-labelledby="menu-title">
-        <div class="wrap intro-inner">
-          <div class="menu-head">
-            <div>
-              <p class="label">Меню</p>
-              <h2 class="display clip" id="menu-title">Программы</h2>
-            </div>
-            <p class="intro-text">Три программы: 60, 90 и 120 минут. Стоимость указана на каждой карточке. Нажмите на карточку, чтобы увидеть процедуры.</p>
-          </div>
-        </div>
-      </div>
-    </section>
-  </div>
-
-  <section class="menu" id="menu">
+  <section class="menu" id="menu" aria-labelledby="menu-title">
     <div class="wrap">
+      <div class="menu-head">
+        <div class="rv">
+          <p class="label">Меню</p>
+          <h2 class="display clip" id="menu-title">Программы</h2>
+        </div>
+        <p class="intro-text rv d1">Три программы: 60, 90 и 120 минут. Стоимость указана на каждой карточке. Нажмите на карточку, чтобы увидеть процедуры.</p>
+      </div>
+
       <div class="cards">
         <article class="card rv" data-name="Перезагрузка" data-price="3 500 ₽">
           <div class="card-inner">
@@ -833,27 +793,21 @@
   const contactInput = document.getElementById("contact");
   const radios = document.querySelectorAll('input[name="program"]');
   const cards = document.querySelectorAll(".card");
-  const stage = document.getElementById("stage");
-  const intro = document.getElementById("intro");
-  const topBar = document.getElementById("top-bar");
   const heroVideo = document.getElementById("hero-video");
-  const clamp01 = (x) => Math.min(Math.max(x, 0), 1);
+  const topBar = document.getElementById("top-bar");
 
-  // ----- переход: прогресс прокрутки по зоне закрепления -----
+  // ----- прокрутка: лёгкое смещение видео, шапка, появление блоков -----
   let ticking = false;
   function onFrame() {
     ticking = false;
+    const y = window.scrollY;
     const vh = window.innerHeight;
-    const range = Math.max(stage.offsetHeight - vh, 1);
-    const top = stage.getBoundingClientRect().top;
-    const p = clamp01(-top / range);
-    // программы проступают во второй половине перехода
-    const q = clamp01((p - 0.3) / 0.55);
-    stage.style.setProperty("--p", p.toFixed(4));
-    stage.style.setProperty("--q", q.toFixed(4));
-    intro.classList.toggle("is-active", q > 0.9);
-    topBar.classList.toggle("is-solid", window.scrollY > vh * 0.6);
-    revealOnScroll();
+    if (y < vh) heroVideo.style.transform = `translate3d(0, ${(y * 0.18).toFixed(1)}px, 0)`;
+    topBar.classList.toggle("is-solid", y > vh * 0.6);
+    const limit = vh * 0.94;
+    document.querySelectorAll(".rv:not(.in), .clip:not(.in)").forEach((el) => {
+      if (el.getBoundingClientRect().top < limit) el.classList.add("in");
+    });
   }
   function requestFrame() {
     if (!ticking) {
@@ -864,27 +818,18 @@
   window.addEventListener("scroll", requestFrame, { passive: true });
   window.addEventListener("resize", requestFrame);
 
-  // ----- появление блоков: по положению, без наблюдателя -----
-  function revealOnScroll() {
-    const limit = window.innerHeight * 0.94;
-    document.querySelectorAll(".rv:not(.in), .clip:not(.in)").forEach((el) => {
-      if (el.getBoundingClientRect().top < limit) el.classList.add("in");
-    });
-  }
-
   // первый экран открывается сразу
-  requestAnimationFrame(() => {
-    setTimeout(() => {
-      document.getElementById("hero-title").classList.add("in");
-      document.querySelectorAll(".hero .rv").forEach((el) => el.classList.add("in"));
-    }, 200);
-  });
+  setTimeout(() => {
+    document.getElementById("hero-title").classList.add("in");
+    document.querySelectorAll(".hero .rv").forEach((el) => el.classList.add("in"));
+    requestFrame();
+  }, 200);
 
   heroVideo.play && heroVideo.play().catch(() => {});
 
   document.getElementById("hero-cta").addEventListener("click", (e) => {
     e.preventDefault();
-    window.scrollTo({ top: stage.offsetHeight - window.innerHeight * 0.02, behavior: "smooth" });
+    document.getElementById("menu").scrollIntoView({ behavior: "smooth" });
   });
 
   // ----- карточки: переворот по нажатию на карточку -----
@@ -1074,7 +1019,4 @@
   // если заявка уже сохранена в этом браузере, показываем её при открытии
   const saved = loadRequest();
   if (saved) openModal(saved);
-
-  // стартовый расчёт и первое появление того, что уже видно
-  requestFrame();
 </script>
