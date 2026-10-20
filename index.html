@@ -60,21 +60,24 @@
     padding-right: max(22px, env(safe-area-inset-right, 0px));
   }
 
-  /* слова заголовков проявляются по одному */
-  .w {
-    display: inline-block;
-    overflow: hidden;
-    vertical-align: top;
-    padding-bottom: .08em;
-    margin-bottom: -.08em;
+  /* ---------- появление: одно движение, без разбиения на слова ---------- */
+  .js .rv {
+    opacity: 0;
+    transform: translate3d(0, 34px, 0);
+    filter: blur(8px);
+    transition: opacity 1.6s var(--ease), transform 1.8s var(--ease), filter 1.6s var(--ease);
   }
-  .w > span {
-    display: inline-block;
-    transform: translate3d(0, 115%, 0);
-    transition: transform 1.4s var(--ease);
-    transition-delay: calc(var(--i, 0) * 70ms);
+  .js .rv.in { opacity: 1; transform: none; filter: none; }
+  .js .rv.d1 { transition-delay: .12s; }
+  .js .rv.d2 { transition-delay: .24s; }
+  .js .rv.d3 { transition-delay: .36s; }
+
+  /* заголовок открывается маской снизу */
+  .js .clip {
+    clip-path: inset(0 -6% 100% -6%);
+    transition: clip-path 1.9s var(--ease);
   }
-  .w.is-in > span { transform: none; }
+  .js .clip.in { clip-path: inset(-20% -6% -20% -6%); }
 
   /* ---------- шапка ---------- */
   .top {
@@ -82,7 +85,7 @@
     inset: 0 0 auto 0;
     z-index: 40;
     color: var(--mist);
-    transition: background-color .9s var(--ease), backdrop-filter .9s var(--ease);
+    transition: background-color 1s var(--ease), backdrop-filter 1s var(--ease);
   }
   .top.is-solid {
     background: rgba(20, 23, 20, .88);
@@ -119,9 +122,16 @@
   }
   .top-cta:hover { background: var(--rose-hover); transform: translateY(-1px); }
 
-  /* ---------- первый экран: обычный раздел страницы ---------- */
-  .hero {
+  /* ---------- переход: видео уходит в глубину, программы проступают сквозь него ---------- */
+  .stage {
+    --p: 0;
+    --q: 0;
     position: relative;
+    height: 180svh;
+  }
+  .hero {
+    position: sticky;
+    top: 0;
     height: 100vh;
     height: 100svh;
     overflow: hidden;
@@ -130,13 +140,14 @@
   }
   .hero video {
     position: absolute;
-    left: 0;
-    top: -8%;
+    inset: 0;
     width: 100%;
-    height: 116%;
+    height: 100%;
     object-fit: cover;
     object-position: 50% 40%;
-    will-change: transform;
+    transform: scale(calc(1 + var(--p) * .06));
+    filter: brightness(calc(1 - var(--p) * .45));
+    will-change: transform, filter;
   }
   .hero .veil {
     position: absolute;
@@ -157,6 +168,10 @@
     padding-bottom: 56px;
     padding-left: max(22px, env(safe-area-inset-left, 0px));
     padding-right: max(22px, env(safe-area-inset-right, 0px));
+    opacity: calc(1 - var(--p) * 1.5);
+    transform: translate3d(0, calc(var(--p) * -60px), 0);
+    filter: blur(calc(var(--p) * 10px));
+    will-change: transform, opacity;
   }
   .hero h1 {
     font-size: clamp(3rem, 10vw, 8rem);
@@ -169,9 +184,6 @@
     max-width: 32ch;
     margin: 24px auto 0;
     color: rgba(239, 233, 223, .92);
-    opacity: 0;
-    transform: translate3d(0, 14px, 0);
-    transition: opacity 1.6s var(--ease) .5s, transform 1.8s var(--ease) .5s;
   }
   .hero .cta {
     display: inline-flex;
@@ -185,32 +197,45 @@
     letter-spacing: .2em;
     text-transform: uppercase;
     text-decoration: none;
-    opacity: 0;
-    transform: translate3d(0, 14px, 0);
-    transition: opacity 1.6s var(--ease) .75s, transform 1.8s var(--ease) .75s, background-color .7s var(--ease);
+    transition: background-color .7s var(--ease);
   }
   .hero .cta:hover { background: var(--rose-hover); }
-  .hero.is-on .tagline,
-  .hero.is-on .cta { opacity: 1; transform: none; }
 
-  /* ---------- программы ---------- */
-  .menu { padding: 130px 0 150px; }
+  /* программы проступают поверх видео */
+  .intro {
+    position: absolute;
+    inset: 0;
+    background: var(--paper);
+    opacity: var(--q);
+    display: flex;
+    align-items: center;
+    pointer-events: none;
+  }
+  .intro.is-active { pointer-events: auto; }
+  .intro-inner {
+    transform: translate3d(0, calc((1 - var(--q)) * 90px), 0);
+    filter: blur(calc((1 - var(--q)) * 10px));
+  }
   .menu-head {
     display: grid;
     gap: 22px;
-    margin-bottom: 72px;
   }
   @media (min-width: 900px) {
     .menu-head { grid-template-columns: 1fr 1fr; align-items: end; gap: 48px; }
-    .menu-head p { justify-self: end; }
   }
-  .menu-head h2 { font-size: var(--h2); color: var(--ink); }
-  .menu-head p { max-width: 40ch; margin: 0; color: var(--muted); font-size: 1.04rem; }
+  .menu-head h2 { font-size: var(--h2); color: var(--ink); margin-top: 16px; }
+  .menu-head .intro-text { max-width: 40ch; margin: 0; color: var(--muted); font-size: 1.04rem; }
+  @media (min-width: 900px) {
+    .menu-head .intro-text { justify-self: end; }
+  }
 
+  /* ---------- программы ---------- */
+  .menu { padding: 120px 0 150px; background: var(--paper); position: relative; }
   .cards {
     display: grid;
     gap: 26px;
     grid-template-columns: 1fr;
+    margin-top: 72px;
   }
   @media (min-width: 900px) {
     .cards { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; }
@@ -375,7 +400,7 @@
   }
   .booking-head { display: grid; gap: 16px; margin-bottom: 56px; }
   .booking .label { color: var(--rose); }
-  .booking h2 { font-size: var(--h2); color: var(--rose); }
+  .booking h2 { font-size: var(--h2); color: var(--rose); margin: 0; }
   .booking-grid {
     display: grid;
     gap: 40px;
@@ -556,34 +581,25 @@
   .modal-card .btn { background: var(--stone); color: var(--mist); margin-top: 28px; width: 100%; }
   .modal-card .btn:hover { background: var(--jade); }
 
-  /* ---------- появление блоков ---------- */
-  .js .reveal {
-    opacity: 0;
-    transform: translate3d(0, 36px, 0);
-    filter: blur(6px);
-    transition: opacity 1.6s var(--ease), transform 1.9s var(--ease), filter 1.6s var(--ease);
-  }
-  .js .reveal.is-in { opacity: 1; transform: none; filter: none; }
-  .js .cards .reveal:nth-child(2) { transition-delay: .15s; }
-  .js .cards .reveal:nth-child(3) { transition-delay: .3s; }
-
   /* ---------- телефон ---------- */
   @media (max-width: 600px) {
-    body { font-size: 17px; }
     .hero h1 { font-size: clamp(3.1rem, 17vw, 5rem); }
     .hero .tagline { font-size: 1.1rem; }
     .menu { padding: 96px 0 110px; }
-    .menu-head { margin-bottom: 52px; }
+    .cards { margin-top: 52px; }
     .booking { padding: 100px 0 110px; }
-    .program .min { font-size: .95rem; }
+    .menu-head h2 { margin-top: 12px; }
   }
 
+  /* ---------- меньше движения: без закрепления и растворения ---------- */
   @media (prefers-reduced-motion: reduce) {
     html { scroll-behavior: auto; }
     *, *::before, *::after { transition: none !important; animation: none !important; }
-    .js .reveal { opacity: 1; transform: none; filter: none; }
-    .w > span { transform: none; }
-    .hero .tagline, .hero .cta { opacity: 1; transform: none; }
+    .stage { height: auto; --p: 1; --q: 1; }
+    .hero { position: relative; height: auto; min-height: 100svh; }
+    .intro { position: relative; inset: auto; min-height: 80svh; padding: 120px 0; }
+    .js .rv { opacity: 1; transform: none; filter: none; }
+    .js .clip { clip-path: none; }
   }
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -598,30 +614,37 @@
 </header>
 
 <main>
-  <section class="hero" id="top" aria-label="The Rituals">
-    <video src="video/hero.mp4" autoplay muted loop playsinline preload="auto" aria-hidden="true" id="hero-video"></video>
-    <div class="veil"></div>
-    <div class="hero-content">
-      <div>
-        <h1 class="display" id="hero-title">The Rituals</h1>
-        <p class="tagline">SPA-центр в центре Москвы: массаж, уход и тишина, в которую можно зайти прямо после работы.</p>
-      </div>
-      <a class="cta" href="#menu" id="hero-cta">Смотреть программы</a>
-    </div>
-  </section>
+  <div class="stage" id="stage">
+    <section class="hero" id="hero" aria-label="The Rituals">
+      <video src="video/hero.mp4" autoplay muted loop playsinline preload="auto" aria-hidden="true" id="hero-video"></video>
+      <div class="veil"></div>
 
-  <section class="menu" id="menu" aria-labelledby="menu-title">
-    <div class="wrap">
-      <div class="menu-head">
+      <div class="hero-content">
         <div>
-          <p class="label reveal">Меню</p>
-          <h2 class="display split" id="menu-title" style="margin-top: 16px;">Программы</h2>
+          <h1 class="display clip" id="hero-title">The Rituals</h1>
+          <p class="tagline rv d2">SPA-центр в центре Москвы: массаж, уход и тишина, в которую можно зайти прямо после работы.</p>
         </div>
-        <p class="reveal">Три программы: 60, 90 и 120 минут. Стоимость указана на каждой карточке. Нажмите на карточку, чтобы увидеть процедуры.</p>
+        <a class="cta rv d3" href="#menu" id="hero-cta">Смотреть программы</a>
       </div>
 
+      <div class="intro" id="intro" aria-labelledby="menu-title">
+        <div class="wrap intro-inner">
+          <div class="menu-head">
+            <div>
+              <p class="label">Меню</p>
+              <h2 class="display clip" id="menu-title">Программы</h2>
+            </div>
+            <p class="intro-text">Три программы: 60, 90 и 120 минут. Стоимость указана на каждой карточке. Нажмите на карточку, чтобы увидеть процедуры.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <section class="menu" id="menu">
+    <div class="wrap">
       <div class="cards">
-        <article class="card reveal" data-name="Перезагрузка" data-price="3 500 ₽">
+        <article class="card rv" data-name="Перезагрузка" data-price="3 500 ₽">
           <div class="card-inner">
             <div class="face front">
               <div class="photo"><img src="img/facial.png" alt="Травяная маска на лице" loading="lazy"></div>
@@ -653,7 +676,7 @@
           </div>
         </article>
 
-        <article class="card reveal" data-name="Глубокий отдых" data-price="5 000 ₽">
+        <article class="card rv d1" data-name="Глубокий отдых" data-price="5 000 ₽">
           <div class="card-inner">
             <div class="face front">
               <div class="photo"><img src="img/honey.png" alt="Мёд стекает на спину" loading="lazy"></div>
@@ -684,7 +707,7 @@
           </div>
         </article>
 
-        <article class="card reveal" data-name="Для двоих" data-price="9 000 ₽">
+        <article class="card rv d2" data-name="Для двоих" data-price="9 000 ₽">
           <div class="card-inner">
             <div class="face front">
               <div class="photo"><img src="img/duo.png" alt="Два ритуала рядом при тёплом свете" loading="lazy"></div>
@@ -722,16 +745,16 @@
   <section class="booking" id="booking" aria-labelledby="booking-title">
     <div class="wrap">
       <div class="booking-head">
-        <p class="label reveal">Запись</p>
-        <h2 class="display split" id="booking-title">Записаться</h2>
+        <p class="label rv">Запись</p>
+        <h2 class="display clip" id="booking-title">Записаться</h2>
       </div>
 
       <div class="booking-grid">
-        <div class="reveal">
+        <div class="rv">
           <p class="booking-note">Укажите имя, ритуал и удобную дату. Подтвердим время в Telegram или по телефону.</p>
         </div>
 
-        <div class="reveal">
+        <div class="rv d1">
           <form id="booking-form" novalidate>
             <div class="field line">
               <label for="name">Имя</label>
@@ -810,85 +833,59 @@
   const contactInput = document.getElementById("contact");
   const radios = document.querySelectorAll('input[name="program"]');
   const cards = document.querySelectorAll(".card");
-
-  // ----- слова заголовков проявляются по одному -----
-  function splitWords(el) {
-    if (el.dataset.split) return;
-    const words = el.textContent.trim().split(/\s+/);
-    el.textContent = "";
-    words.forEach((word, i) => {
-      const outer = document.createElement("span");
-      outer.className = "w";
-      const inner = document.createElement("span");
-      inner.textContent = word;
-      inner.style.setProperty("--i", i);
-      outer.append(inner);
-      el.append(outer);
-      if (i < words.length - 1) el.append(" ");
-    });
-    el.dataset.split = "1";
-  }
-  const heroTitle = document.getElementById("hero-title");
-  splitWords(heroTitle);
-  document.querySelectorAll(".split").forEach(splitWords);
-
-  // первый экран: заголовок проявляется сразу
-  requestAnimationFrame(() => {
-    setTimeout(() => {
-      heroTitle.querySelectorAll(".w").forEach((w) => w.classList.add("is-in"));
-      document.querySelector(".hero").classList.add("is-on");
-    }, 150);
-  });
-
-  // ----- видео первого экрана мягко смещается при прокрутке -----
-  const heroVideo = document.getElementById("hero-video");
+  const stage = document.getElementById("stage");
+  const intro = document.getElementById("intro");
   const topBar = document.getElementById("top-bar");
+  const heroVideo = document.getElementById("hero-video");
+  const clamp01 = (x) => Math.min(Math.max(x, 0), 1);
+
+  // ----- переход: прогресс прокрутки по зоне закрепления -----
   let ticking = false;
-  function onScroll() {
+  function onFrame() {
     ticking = false;
-    const y = window.scrollY;
     const vh = window.innerHeight;
-    if (y < vh * 1.2) {
-      heroVideo.style.transform = `translate3d(0, ${(y * 0.2).toFixed(1)}px, 0)`;
-    }
-    topBar.classList.toggle("is-solid", y > vh * 0.6);
+    const range = Math.max(stage.offsetHeight - vh, 1);
+    const top = stage.getBoundingClientRect().top;
+    const p = clamp01(-top / range);
+    // программы проступают во второй половине перехода
+    const q = clamp01((p - 0.3) / 0.55);
+    stage.style.setProperty("--p", p.toFixed(4));
+    stage.style.setProperty("--q", q.toFixed(4));
+    intro.classList.toggle("is-active", q > 0.9);
+    topBar.classList.toggle("is-solid", window.scrollY > vh * 0.6);
+    revealOnScroll();
   }
-  window.addEventListener("scroll", () => {
+  function requestFrame() {
     if (!ticking) {
       ticking = true;
-      requestAnimationFrame(onScroll);
+      requestAnimationFrame(onFrame);
     }
-  }, { passive: true });
-  onScroll();
+  }
+  window.addEventListener("scroll", requestFrame, { passive: true });
+  window.addEventListener("resize", requestFrame);
 
-  const playPromise = heroVideo.play();
-  if (playPromise && playPromise.catch) playPromise.catch(() => {});
-
-  // кнопка первого экрана ведёт к программам
-  document.getElementById("hero-cta").addEventListener("click", (e) => {
-    e.preventDefault();
-    document.getElementById("menu").scrollIntoView({ behavior: "smooth" });
-  });
-
-  // ----- появление при прокрутке -----
-  const revealEls = document.querySelectorAll(".reveal, .split");
-  if ("IntersectionObserver" in window) {
-    const io = new IntersectionObserver((entries) => {
-      entries.forEach((e) => {
-        if (!e.isIntersecting) return;
-        const el = e.target;
-        el.classList.add("is-in");
-        el.querySelectorAll(".w").forEach((w) => w.classList.add("is-in"));
-        io.unobserve(el);
-      });
-    }, { threshold: 0.12 });
-    revealEls.forEach((el) => io.observe(el));
-  } else {
-    revealEls.forEach((el) => {
-      el.classList.add("is-in");
-      el.querySelectorAll(".w").forEach((w) => w.classList.add("is-in"));
+  // ----- появление блоков: по положению, без наблюдателя -----
+  function revealOnScroll() {
+    const limit = window.innerHeight * 0.94;
+    document.querySelectorAll(".rv:not(.in), .clip:not(.in)").forEach((el) => {
+      if (el.getBoundingClientRect().top < limit) el.classList.add("in");
     });
   }
+
+  // первый экран открывается сразу
+  requestAnimationFrame(() => {
+    setTimeout(() => {
+      document.getElementById("hero-title").classList.add("in");
+      document.querySelectorAll(".hero .rv").forEach((el) => el.classList.add("in"));
+    }, 200);
+  });
+
+  heroVideo.play && heroVideo.play().catch(() => {});
+
+  document.getElementById("hero-cta").addEventListener("click", (e) => {
+    e.preventDefault();
+    window.scrollTo({ top: stage.offsetHeight - window.innerHeight * 0.02, behavior: "smooth" });
+  });
 
   // ----- карточки: переворот по нажатию на карточку -----
   function setFlipped(card, on) {
@@ -1077,4 +1074,7 @@
   // если заявка уже сохранена в этом браузере, показываем её при открытии
   const saved = loadRequest();
   if (saved) openModal(saved);
+
+  // стартовый расчёт и первое появление того, что уже видно
+  requestFrame();
 </script>
