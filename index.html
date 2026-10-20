@@ -117,9 +117,10 @@
     letter-spacing: .18em;
     text-transform: uppercase;
     text-decoration: none;
-    transition: background-color .7s var(--ease), transform .7s var(--ease);
+    transition: background-color .7s var(--ease), transform .7s var(--ease), opacity .7s var(--ease);
   }
   .top-cta:hover { background: var(--rose-hover); transform: translateY(-1px); }
+  .top.hide-cta .top-cta { opacity: 0; transform: translateY(-10px); pointer-events: none; }
 
   /* ---------- первый экран ---------- */
   .hero {
@@ -716,7 +717,7 @@
   <section class="booking" id="booking" aria-labelledby="booking-title">
     <div class="wrap">
       <div class="booking-head">
-        <p class="label rv">Запись</p>
+        <p class="label rv">Ваш ритуал начинается здесь</p>
         <h2 class="display clip" id="booking-title">Записаться</h2>
       </div>
 
@@ -767,7 +768,7 @@
               <p class="error" id="contact-error"></p>
             </div>
 
-            <button type="submit" class="btn btn-rose">Отправить заявку</button>
+            <button type="submit" class="btn btn-rose">Записаться</button>
           </form>
         </div>
       </div>
@@ -815,6 +816,7 @@
     const vh = window.innerHeight;
     document.getElementById("hero").style.setProperty("--p", Math.min(1, y / vh).toFixed(3));
     topBar.classList.toggle("is-solid", y > vh * 0.6);
+    topBar.classList.toggle("hide-cta", document.getElementById("booking").getBoundingClientRect().top < vh * 0.5);
     const limit = vh * 0.94;
     document.querySelectorAll(".rv:not(.in), .clip:not(.in)").forEach((el) => {
       if (el.getBoundingClientRect().top < limit) el.classList.add("in");
