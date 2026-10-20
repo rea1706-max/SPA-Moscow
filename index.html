@@ -138,7 +138,9 @@
     height: 116%;
     object-fit: cover;
     object-position: 50% 40%;
-    will-change: transform;
+    will-change: transform, filter;
+    transform: translate3d(0, calc(var(--p, 0) * 14%), 0) scale(calc(1 + var(--p, 0) * .1));
+    filter: brightness(calc(1 - var(--p, 0) * .35));
   }
   .hero .veil {
     position: absolute;
@@ -157,6 +159,10 @@
     text-align: center;
     padding-top: 130px;
     padding-bottom: 56px;
+    opacity: calc(1 - var(--p, 0) * 1.5);
+    filter: blur(calc(var(--p, 0) * 10px));
+    transform: translate3d(0, calc(var(--p, 0) * -50px), 0);
+    will-change: opacity, transform;
     padding-left: max(22px, env(safe-area-inset-left, 0px));
     padding-right: max(22px, env(safe-area-inset-right, 0px));
   }
@@ -189,7 +195,15 @@
   .hero .cta:hover { background: var(--rose-hover); }
 
   /* ---------- программы: заголовок над карточками ---------- */
-  .menu { padding: 120px 0 150px; background: var(--paper); }
+  .menu {
+    position: relative;
+    z-index: 2;
+    padding: 130px 0 150px;
+    background: var(--paper);
+    border-radius: 36px 36px 0 0;
+    margin-top: -36px;
+    box-shadow: 0 -30px 60px -30px rgba(14, 17, 15, .55);
+  }
   .menu-head {
     display: grid;
     gap: 22px;
@@ -597,8 +611,7 @@
     <div class="wrap">
       <div class="menu-head">
         <div class="rv">
-          <p class="label">Меню</p>
-          <h2 class="display clip" id="menu-title">Программы</h2>
+          <h2 class="display clip" id="menu-title">Программы погружения</h2>
         </div>
         <p class="intro-text rv d1">Три программы: 60, 90 и 120 минут. Стоимость указана на каждой карточке. Нажмите на карточку, чтобы увидеть процедуры.</p>
       </div>
@@ -802,7 +815,7 @@
     ticking = false;
     const y = window.scrollY;
     const vh = window.innerHeight;
-    if (y < vh) heroVideo.style.transform = `translate3d(0, ${(y * 0.18).toFixed(1)}px, 0)`;
+    document.getElementById("hero").style.setProperty("--p", Math.min(1, y / vh).toFixed(3));
     topBar.classList.toggle("is-solid", y > vh * 0.6);
     const limit = vh * 0.94;
     document.querySelectorAll(".rv:not(.in), .clip:not(.in)").forEach((el) => {
