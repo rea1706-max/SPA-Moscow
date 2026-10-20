@@ -454,7 +454,7 @@
   .field.line:focus-within::after { transform: scaleX(1); }
 
   .chips { display: grid; gap: 10px; grid-template-columns: 1fr; }
-  @media (min-width: 520px) {
+  @media (min-width: 720px) {
     .chips { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   }
   .chip {
@@ -733,13 +733,13 @@
   <section class="booking" id="booking" aria-labelledby="booking-title">
     <div class="wrap">
       <div class="booking-head">
-        <p class="label rv">Ваш ритуал начинается здесь</p>
+        <p class="label rv">Ваша программа начинается здесь</p>
         <h2 class="display clip" id="booking-title">Записаться</h2>
       </div>
 
       <div class="booking-grid">
         <div class="rv">
-          <p class="booking-note">Укажите имя, ритуал и удобную дату. Подтвердим время в Telegram или по телефону.</p>
+          <p class="booking-note">Укажите имя, программу и удобную дату. Подтвердим время в Telegram или по телефону.</p>
         </div>
 
         <div class="rv d1">
@@ -751,8 +751,8 @@
             </div>
 
             <fieldset class="field" id="program-field">
-              <legend>Ритуал</legend>
-              <div class="chips" role="radiogroup" aria-label="Ритуал">
+              <legend>Программа</legend>
+              <div class="chips" role="radiogroup" aria-label="Программа">
                 <label class="chip">
                   <input type="radio" name="program" value="Перезагрузка" data-price="3 500 ₽">
                   <strong>Перезагрузка</strong>
@@ -934,7 +934,7 @@
     confirmDetails.replaceChildren();
     [
       ["Имя", r.name],
-      ["Ритуал", `${r.program}, ${r.price}`],
+      ["Программа", `${r.program}, ${r.price}`],
       ["Дата", formatDate(r.date)],
       ["Связь", r.contact],
     ].forEach(([term, value]) => {
@@ -977,7 +977,7 @@
     const t = name.trim();
     if (!t) errors.name = "Укажите имя.";
     else if (t.length < 2) errors.name = "Имя должно быть не короче двух символов.";
-    if (!program) errors.program = "Выберите ритуал.";
+    if (!program) errors.program = "Выберите программу.";
     if (!date) errors.date = "Выберите дату.";
     else if (date < todayISO()) errors.date = "Дата не может быть раньше сегодняшней.";
     const c = contact.trim();
